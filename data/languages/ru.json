@@ -1,0 +1,26 @@
+{
+    "app_name": "File Organizer Pro",
+    "tabs": {
+        "main": "🏠 Сортировка",
+        "duplicates": "🔄 Дубликаты",
+        "settings": "⚙️ Настройки",
+        "stats": "📈 Статистика"
+    },
+    "buttons": {
+        "browse": "📁 Выбрать папку",
+        "scan": "🔍 Сканировать",
+        "preview": "👁 Предпросмотр",
+        "organize": "🚀 Запустить сортировку",
+        "find_duplicates": "🔍 Найти дубликаты",
+        "clean_duplicates": "🗑️ Очистить дубликаты",
+        "save": "💾 Сохранить",
+        "reset": "🔄 Сбросить"
+    },
+    "messages": {
+        "select_folder": "Выберите папку для сортировки",
+        "scanning": "Сканирование...",
+        "organizing": "Сортировка файлов...",
+        "done": "Готово!",
+        "error": "Ошибка"
+    }
+}

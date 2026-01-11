@@ -1,0 +1,10 @@
+{
+    "source_folder": "",
+    "categories": {
+        "Изображения": [".jpg", ".jpeg", ".png", ".gif"],
+        "Документы": [".pdf", ".doc", ".docx", ".txt"],
+        "Архивы": [".zip", ".rar", ".7z"]
+    },
+    "organize_by_date": true,
+    "date_format": 0
+}

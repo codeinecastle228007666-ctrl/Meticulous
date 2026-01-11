@@ -1,0 +1,26 @@
+{
+    "app_name": "File Organizer Pro",
+    "tabs": {
+        "main": "🏠 Organization",
+        "duplicates": "🔄 Duplicates",
+        "settings": "⚙️ Settings",
+        "stats": "📈 Statistics"
+    },
+    "buttons": {
+        "browse": "📁 Browse Folder",
+        "scan": "🔍 Scan",
+        "preview": "👁 Preview",
+        "organize": "🚀 Organize Files",
+        "find_duplicates": "🔍 Find Duplicates",
+        "clean_duplicates": "🗑️ Clean Duplicates",
+        "save": "💾 Save",
+        "reset": "🔄 Reset"
+    },
+    "messages": {
+        "select_folder": "Select folder for organization",
+        "scanning": "Scanning...",
+        "organizing": "Organizing files...",
+        "done": "Done!",
+        "error": "Error"
+    }
+}
