@@ -1,15 +1,24 @@
+# run.py
 import sys
 import os
 import traceback
 
-# Добавляем папку src в путь Python
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
-
 def main():
     try:
-        # Попробуем импортировать и запустить приложение
+        # Добавляем папку src в путь Python
+        src_path = os.path.join(os.path.dirname(__file__), 'src')
+        if src_path not in sys.path:
+            sys.path.insert(0, src_path)
+        
+        # Создаем необходимые папки
+        folders = ['config', 'data/languages', 'logs', 'backups']
+        for folder in folders:
+            os.makedirs(os.path.join(os.path.dirname(__file__), folder), exist_ok=True)
+        
+        # Импортируем и запускаем приложение
         from main import main as app_main
         app_main()
+        
     except Exception as e:
         print("=" * 60)
         print("ОШИБКА ПРИ ЗАПУСКЕ:")
