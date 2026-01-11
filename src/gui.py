@@ -1066,13 +1066,20 @@ class FileOrganizerApp(QMainWindow):
                 row = self.dup_table.rowCount()
                 self.dup_table.insertRow(row)
                 
-                # Группа
-                group_item = QTableWidgetItem(f"Группа {group_num}")
-                group_item.setData(Qt.UserRole, hash_val)
+                # Используем безопасное отображение пути
+                safe_path = self.safe_display_path_for_table(file_info['path'])
                 
                 self.dup_table.setItem(row, 0, QTableWidgetItem(file_info['name']))
-                self.dup_table.setItem(row, 1, QTableWidgetItem(file_info['path']))
-                self.dup_table.setItem(row, 2, QTableWidgetItem(self.format_size(file_info['size'])))
+                self.dup_table.setItem(row, 1, QTableWidgetItem(safe_path))
+                
+                # Исправленный размер
+                try:
+                    size_str = self.format_size(file_info['size'])
+                except:
+                    size_str = "Ошибка"
+                    
+                self.dup_table.setItem(row, 2, QTableWidgetItem(size_str))
+                
                 self.dup_table.setItem(row, 3, QTableWidgetItem(
                     datetime.fromtimestamp(file_info['ctime']).strftime("%Y-%m-%d %H:%M:%S")
                 ))
@@ -1083,25 +1090,30 @@ class FileOrganizerApp(QMainWindow):
             
             group_num += 1
         
-        # Подсчитываем экономию места
+        # Подсчитываем экономию места с исправленным форматированием
         wasted_space = 0
         for hash_val, files in duplicates.items():
             if len(files) > 1:
-                # Сортируем по дате, оставляем самый новый
                 files_sorted = sorted(files, key=lambda x: x['ctime'], reverse=True)
-                # Суммируем размер всех кроме первого (самого нового)
                 for file_info in files_sorted[1:]:
                     wasted_space += file_info['size']
         
+        # Исправляем отображение статистики
+        try:
+            total_size_str = self.format_size(total_size)
+            wasted_space_str = self.format_size(wasted_space)
+        except:
+            total_size_str = "Ошибка расчета"
+            wasted_space_str = "Ошибка расчета"
+        
         self.dup_stats.setText(
             f"✅ <b>Найдено:</b> {len(duplicates)} групп, {total_files} файлов<br>"
-            f"📏 <b>Общий размер:</b> {self.format_size(total_size)}<br>"
-            f"🗑️ <b>Можно освободить:</b> {self.format_size(wasted_space)}"
+            f"📏 <b>Общий размер:</b> {total_size_str}<br>"
+            f"🗑️ <b>Можно освободить:</b> {wasted_space_str}"
         )
         
         self.status_label.setText(
-            f"Найдено {len(duplicates)} групп дубликатов, "
-            f"можно освободить {self.format_size(wasted_space)}"
+            f"Найдено {len(duplicates)} групп дубликатов"
         )
     
     def on_duplicate_selected(self):
@@ -1711,7 +1723,7 @@ class FileOrganizerApp(QMainWindow):
             <h1>Meticulous</h1>
             
             <p><b>Версия:</b> 1.3</p>
-            <p><b>Разработчик:</b> codeinecastle</p>
+            <p><b>Разработчик:</b> codeinecastle + nspeachturbo</p>
             <p><b>Дата сборки:</b> 2026</p>
             
             <h2>Функции:</h2>
@@ -1925,16 +1937,46 @@ class FileOrganizerApp(QMainWindow):
             self.status_label.setText("Настройки сброшены")
     
     def format_size(self, size_bytes):
-        """Форматирование размера файла"""
-        if size_bytes == 0:
+        """Форматирование размера файла (исправленная версия)"""
+        if not isinstance(size_bytes, (int, float)):
+            try:
+                size_bytes = float(size_bytes)
+            except:
+                return "0 Б"
+        
+        if size_bytes <= 0:
             return "0 Б"
         
-        for unit in ['Б', 'КБ', 'МБ', 'ГБ', 'ТБ']:
-            if size_bytes < 1024.0:
-                return f"{size_bytes:.2f} {unit}"
-            size_bytes /= 1024.0
+        # Защита от отрицательных значений и слишком больших чисел
+        if size_bytes < 0 or size_bytes > 10**18:  # больше 1 эксабайта
+            return "Ошибка размера"
         
-        return f"{size_bytes:.2f} ПБ"
+        units = ['Б', 'КБ', 'МБ', 'ГБ', 'ТБ', 'ПБ']
+        unit_index = 0
+        
+        while size_bytes >= 1024.0 and unit_index < len(units) - 1:
+            size_bytes /= 1024.0
+            unit_index += 1
+        
+        # Форматируем с учетом размера
+        if unit_index == 0:  # Байты
+            return f"{int(size_bytes)} Б"
+        elif size_bytes < 10:  # Маленькие размеры показываем с 2 знаками
+            return f"{size_bytes:.2f} {units[unit_index]}"
+        elif size_bytes < 100:  # Средние размеры с 1 знаком
+            return f"{size_bytes:.1f} {units[unit_index]}"
+        else:  # Большие размеры как целые числа
+            return f"{int(size_bytes)} {units[unit_index]}"
+    
+    def safe_display_path_for_table(self, path):
+        """Безопасное отображение пути для таблицы"""
+        try:
+            # Ограничиваем длину пути для лучшего отображения
+            if len(path) > 100:
+                return "..." + path[-97:]
+            return path
+        except:
+            return "Неверный путь"
     
     def closeEvent(self, event):
         """Обработка закрытия окна"""

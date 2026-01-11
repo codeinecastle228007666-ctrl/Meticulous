@@ -1,4 +1,4 @@
-# run.py
+# run.py - ИСПРАВЛЕННЫЙ ВАРИАНТ
 import sys
 import os
 import traceback
@@ -15,9 +15,39 @@ def main():
         for folder in folders:
             os.makedirs(os.path.join(os.path.dirname(__file__), folder), exist_ok=True)
         
-        # Импортируем и запускаем приложение
-        from main import main as app_main
+        # Импортируем и запускаем приложение КОРРЕКТНО
+        # ВАЖНО: импортируем main из папки src
+        from src.main import main as app_main
         app_main()
+        
+    except ImportError as e:
+        # Если не получается импортировать из src.main, пробуем альтернативы
+        print(f"Импорт из src.main не удался: {e}")
+        print("Пробуем альтернативный импорт...")
+        
+        try:
+            # Пробуем импортировать напрямую
+            from main import main as app_main
+            app_main()
+        except ImportError:
+            # Пробуем запустить приложение напрямую
+            from PyQt5.QtWidgets import QApplication
+            from PyQt5.QtGui import QFont
+            
+            app = QApplication(sys.argv)
+            app.setFont(QFont("Segoe UI", 10))
+            
+            # Импортируем и создаем окно
+            try:
+                from src.gui import FileOrganizerApp
+                window = FileOrganizerApp()
+            except ImportError:
+                # Последняя попытка
+                import src.gui as gui
+                window = gui.FileOrganizerApp()
+            
+            window.show()
+            sys.exit(app.exec_())
         
     except Exception as e:
         print("=" * 60)
